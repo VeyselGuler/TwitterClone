@@ -6,7 +6,7 @@ public class Helper
 {
     public static string Hash(string input)
     {
-        using HMACSHA256 hmac = new HMACSHA256(Encoding.ASCII.GetBytes("barisnaber"));
+        using HMACSHA256 hmac = new HMACSHA256(Encoding.ASCII.GetBytes());
         byte[] inputBytes = Encoding.ASCII.GetBytes(input);
         byte[] hashBytes = hmac.ComputeHash(inputBytes);
 
