@@ -1,0 +1,29 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Register
+@if (TempData["AuthError"] != null)
+{
+    <div class="alert alert-danger mb-3" role="alert">
+        @TempData["AuthError"]
+    </div>
+}
+
+
+<form action="/KayitOl" method="post" autocomplete="off">
+    <p>
+        <input required type="email" name="mail" placeholder="E-Mail Adresiniz" value="@Model.Mail">
+    </p>
+    <p>
+        <input required type="text" name="nickname" placeholder="Kullanıcı Adı" value="@Model.Nickname">
+    </p>
+    <p>
+        <input required type="text" name="username" placeholder="İsim Soyisim" value="@Model.Username"/>
+    </p>
+    <p>
+        <input required type="password" name="password" placeholder="Şifre"/>
+    </p>
+    <p>
+        <input required type="password" name="pwconfirmend" placeholder="Tekrar Şifre Giriniz"/>
+    </p>
+
+    <button>Kayıt Ol</button>
+</form>
