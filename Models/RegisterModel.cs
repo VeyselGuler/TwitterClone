@@ -79,3 +79,34 @@ public class TweetInfo
     public string Detail { get; set; }
     public string Mail { get; set; }
 }
+
+public class ResetPwToken
+{
+    public int Id { get; set; }
+    public int UserId { get; set; }
+    public string Token { get; set; }
+    public DateTime Created { get; set; }
+    public bool Used { get; set; }
+}
+
+public class PwReset
+{
+    [Required]
+    public string Token { get; set; }
+    [Required]
+    public string Pw { get; set; }
+}
+
+public class Arama
+{
+    public int Id { get; set; }
+    public string Username { get; set; }
+    public string Nickname { get; set; }
+}
+
+public class AramaModel
+{
+    public string SearchTerm { get; set; }
+    public List<Arama> Sonuc { get; set; }
+}
+

@@ -40,6 +40,14 @@ public class Program
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllerRoute(
+                name: "admin",
+                pattern: "Admin/{action=Index}/{id?}",
+                defaults: new { controller = "Admin" });
+        });
+
         app.Run();
     }
 }

@@ -55,19 +55,16 @@ public class AdminController : Controller
     }
     
     [HttpPost]
-    [Route("/duzenle/{id}")]
-    public IActionResult Duzenle(Register model)
+    [Route("/duzenlepw/{id}")]
+    public IActionResult DuzenlePw(Register model)
     {
+        if (string.IsNullOrEmpty(model.Password))
+        {
+            return RedirectToAction( "Duzenle", new {model.Nickname});
+        }
         using var connection = new SqlConnection(connectionString);
         var sql =
-            "UPDATE users SET Username = @username, Password = @Password, ImgUrl = @ImgUrl WHERE id = @Id";
-        var imageName = Guid.NewGuid().ToString() + Path.GetExtension(model.Image.FileName);
-
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", imageName);
-
-        using var stream = new FileStream(path, FileMode.Create);
-        model.Image.CopyTo(stream);
-        model.ImgUrl = $"/uploads/{imageName}";
+            "UPDATE users SET Password = @Password WHERE id = @Id";
         
         model.Password = Helper.Hash(model.Password);
 
@@ -81,8 +78,117 @@ public class AdminController : Controller
 
         var rowAffected = connection.Execute(sql, data);
 
-        ViewBag.Message = "Profil Güncellendi.";
+        ViewBag.Message = "Şifre Güncellendi.";
         return View("Msg");
 
     }
+    
+    [HttpPost]
+    [Route("/duzenleun/{id}")]
+    public IActionResult DuzenleUn(Register model)
+    {
+        if (string.IsNullOrEmpty(model.Username))
+        {
+            return RedirectToAction( "Duzenle", new {model.Nickname});
+        }
+        using var connection = new SqlConnection(connectionString);
+        var sql =
+            "UPDATE users SET Username = @Username WHERE id = @Id";
+        
+        var data = new
+        {
+            model.Username,
+            model.Password,
+            model.ImgUrl,
+            model.Id
+        };
+
+        var rowAffected = connection.Execute(sql, data);
+
+        ViewBag.Message = "Username Güncellendi.";
+        return View("Msg");
+
+    }
+    
+    [HttpPost]
+    [Route("/duzenlepp/{id}")]
+    public IActionResult DuzenlePp(Register model)
+    {
+        if (model.Image == null || model.Image.Length == 0 )
+        {
+            return RedirectToAction( "Duzenle", new {model.Nickname});
+        }
+        using var connection = new SqlConnection(connectionString);
+        var sql =
+            "UPDATE users SET ImgUrl = @ImgUrl WHERE id = @Id";
+        var imageName = Guid.NewGuid() + Path.GetExtension(model.Image.FileName);
+        
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", imageName);
+        
+        using var stream = new FileStream(path, FileMode.Create);
+        model.Image.CopyTo(stream);
+        model.ImgUrl = $"/uploads/{imageName}";
+        
+        var data = new
+        {
+            model.Username,
+            model.Password,
+            model.ImgUrl,
+            model.Id
+        };
+
+        var rowAffected = connection.Execute(sql, data);
+
+        ViewBag.Message = "Foto Güncellendi.";
+        return View("Msg");
+
+    }
+    
+    [HttpGet]
+    public IActionResult ResetPassword(string token)
+    {
+        using var connection = new SqlConnection(connectionString);
+        var resetToken = connection.QuerySingleOrDefault<ResetPwToken>(
+            "SELECT * FROM PwResetToken WHERE Token = @Token AND Used = 0", new { Token = token });
+
+        if (resetToken == null)
+        {
+            ViewBag.Message = "Geçersiz veya kullanılmış token";
+            return View("Msg");
+        }
+
+        return View(new PwReset { Token = token });
+    }
+    
+    [HttpPost]
+    public IActionResult ResetPassword(PwReset model)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        using var connection = new SqlConnection(connectionString);
+        var resetToken = connection.QueryFirstOrDefault<ResetPwToken>(
+            "SELECT * FROM pwResetToken WHERE Token = @Token AND Used = 0", new { model.Token });
+
+        if (resetToken == null)
+        {
+            ViewBag.Message = "Geçersiz veya kullanılmış token";
+            return View("Msg");
+        }
+        model.Pw = Helper.Hash(model.Pw);
+
+        connection.Execute(
+            "UPDATE users SET Password = @Password WHERE Id = @UserId",
+            new { Password = model.Pw,  resetToken.UserId }
+        );
+
+        connection.Execute(
+            "UPDATE pwResetToken SET Used = 1 WHERE Id = @Id",
+            new { resetToken.Id }
+        );
+
+        ViewBag.Message = "Şifre Başarılı bir şekilde değiştirildi";
+        return View("Msg");
+    }
+    
+    
 }

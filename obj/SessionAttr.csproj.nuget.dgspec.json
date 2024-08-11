@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/veyselmor/Downloads/TwitterCloneMorApp/SessionAttr.csproj": {}
+    "/Users/veyselmor/Documents/GitHub/TwitterClone/SessionAttr.csproj": {}
   },
   "projects": {
-    "/Users/veyselmor/Downloads/TwitterCloneMorApp/SessionAttr.csproj": {
+    "/Users/veyselmor/Documents/GitHub/TwitterClone/SessionAttr.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/veyselmor/Downloads/TwitterCloneMorApp/SessionAttr.csproj",
+        "projectUniqueName": "/Users/veyselmor/Documents/GitHub/TwitterClone/SessionAttr.csproj",
         "projectName": "SessionAttr",
-        "projectPath": "/Users/veyselmor/Downloads/TwitterCloneMorApp/SessionAttr.csproj",
+        "projectPath": "/Users/veyselmor/Documents/GitHub/TwitterClone/SessionAttr.csproj",
         "packagesPath": "/Users/veyselmor/.nuget/packages/",
-        "outputPath": "/Users/veyselmor/Downloads/TwitterCloneMorApp/obj/",
+        "outputPath": "/Users/veyselmor/Documents/GitHub/TwitterClone/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/veyselmor/.nuget/NuGet/NuGet.Config"

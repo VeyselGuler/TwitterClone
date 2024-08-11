@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LYeb3EgxcKLkbzv1PZRRSOCdXodwfNM8KTkfUzZAG/N18pUSRH40zgcrSzpB8wD+svrrtNNAYjnRaI1T4zQgMQ==",
+  "dgSpecHash": "dt+sjcr7U5Je1ls+EMTBvXD6iRZ1f6+rJVP1G0IGHxaO7RUPZJmJTvLXhLvVM7bkNzZD/yr06fo8l0Jt6zFgbg==",
   "success": true,
-  "projectFilePath": "/Users/veyselmor/Downloads/TwitterCloneMorApp/SessionAttr.csproj",
+  "projectFilePath": "/Users/veyselmor/Documents/GitHub/TwitterClone/SessionAttr.csproj",
   "expectedPackageFiles": [
     "/Users/veyselmor/.nuget/packages/azure.core/1.38.0/azure.core.1.38.0.nupkg.sha512",
     "/Users/veyselmor/.nuget/packages/azure.identity/1.11.3/azure.identity.1.11.3.nupkg.sha512",

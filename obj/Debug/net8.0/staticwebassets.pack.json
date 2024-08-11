@@ -5,6 +5,14 @@
       "PackagePath": "staticwebassets/SessionAttr.bundle.scp.css"
     },
     {
+      "Id": "/Users/veyselmor/Desktop/works/SessionAttr/wwwroot/MailTemp/mailtemp.html",
+      "PackagePath": "staticwebassets/MailTemp/mailtemp.html"
+    },
+    {
+      "Id": "/Users/veyselmor/Desktop/works/SessionAttr/wwwroot/MailTemp/pwreset.html",
+      "PackagePath": "staticwebassets/MailTemp/pwreset.html"
+    },
+    {
       "Id": "/Users/veyselmor/Desktop/works/SessionAttr/wwwroot/css/site.css",
       "PackagePath": "staticwebassets/css/site.css"
     },
@@ -251,6 +259,10 @@
     {
       "Id": "/Users/veyselmor/Desktop/works/SessionAttr/wwwroot/uploads/0943a105-88e9-4090-a5f3-37cb1eff4e0e.jpeg",
       "PackagePath": "staticwebassets/uploads/0943a105-88e9-4090-a5f3-37cb1eff4e0e.jpeg"
+    },
+    {
+      "Id": "/Users/veyselmor/Desktop/works/SessionAttr/wwwroot/uploads/0eabb6ac-eab5-4af9-8b8c-2d1943741668.jpg",
+      "PackagePath": "staticwebassets/uploads/0eabb6ac-eab5-4af9-8b8c-2d1943741668.jpg"
     },
     {
       "Id": "/Users/veyselmor/Desktop/works/SessionAttr/wwwroot/uploads/3c70bb67-0258-4232-a26e-abeb0bdcc155.jpeg",

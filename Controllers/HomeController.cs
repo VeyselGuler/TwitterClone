@@ -24,6 +24,24 @@ public class HomeController : Controller
         return true;
     }
 
+    public string TokenUret(int userId)
+    {
+        var token = Guid.NewGuid().ToString();
+
+        using var connection = new SqlConnection(connectionString);
+        var sql = "INSERT INTO pwResetToken (UserId, Token, Created, Used) VALUES (@UserId, @Token, GETDATE(), 0)";
+        connection.Execute(sql, new { UserId = userId, Token = token });
+
+        return token;
+    }
+
+    public Register GetMail(string email)
+    {
+        using var connection = new SqlConnection(connectionString);
+        var sql = "SELECT * FROM users WHERE Mail = @Mail";
+        return connection.QueryFirstOrDefault<Register>(sql, new { Mail = email });
+    }
+
     public int? UserIdGetir(string nickname)
     {
         using var connection = new SqlConnection(connectionString);
@@ -261,8 +279,8 @@ public class HomeController : Controller
         }
 
         ViewData["Nickname"] = HttpContext.Session.GetString("nickname");
-        
-        
+
+
         ViewBag.AddYorum = true;
         if (!CheckLogin())
         {
@@ -293,7 +311,7 @@ public class HomeController : Controller
         }
 
         ViewBag.id = HttpContext.Session.GetInt32("userId");
-        
+
         return View(detailTweet);
     }
 
@@ -309,13 +327,12 @@ public class HomeController : Controller
 
         model.CreatedTime = DateTime.Now;
         model.UserId = (int)HttpContext.Session.GetInt32("userId");
-        
+
         using var connection = new SqlConnection(connectionString);
         var sql =
             "INSERT INTO comments (Summary, CreatedTime, UserId, TweetId) VALUES (@Summary, @CreatedTime, @UserId, @TweetId)";
-        
-        
-        
+
+
         try
         {
             var affectedRows = connection.Execute(sql, model);
@@ -323,15 +340,15 @@ public class HomeController : Controller
             using var cnt = new SqlConnection(connectionString);
             var cntsql =
                 "SELECT users.Mail, tweets.Detail, users.Username FROM comments LEFT JOIN tweets on comments.TweetId = tweets.Id LEFT JOIN users on tweets.UserId = users.Id WHERE comments.TweetId = @TweetId";
-            var tweetInfo = cnt.QueryFirstOrDefault<TweetInfo>(cntsql, new { TweetId = model.TweetId});
+            var tweetInfo = cnt.QueryFirstOrDefault<TweetInfo>(cntsql, new { TweetId = model.TweetId });
 
             using var reader = new StreamReader("wwwroot/mailTemp/mailtemp.html");
             var template = reader.ReadToEnd();
             var mailbody = template
                 .Replace("{{Username}}", tweetInfo.Username)
                 .Replace("{{TweetDetail}}", tweetInfo.Detail);
-            
-            
+
+
             var client = new SmtpClient("smtp.eu.mailgun.org", 587)
             {
                 Credentials = new NetworkCredential(),
@@ -349,39 +366,122 @@ public class HomeController : Controller
             mailMessage.To.Add(new MailAddress(tweetInfo.Mail, tweetInfo.Username));
 
             client.Send(mailMessage);
-            
 
-            return RedirectToAction("Tweet", new {id = model.TweetId} );
+
+            return RedirectToAction("Tweet", new { id = model.TweetId });
         }
         catch (Exception ex)
         {
-            
             return RedirectToAction("Index");
         }
-        
     }
-    
+
     [Route("/YorumSil/{id}")]
     public IActionResult DeleteYorum(int id, int tweetId)
     {
         using var connection = new SqlConnection(connectionString);
-        
-        
+
+
         var sql = "DELETE FROM comments WHERE id = @Id";
         var rowsAffected = connection.Execute(sql, new { Id = id });
 
         return RedirectToAction("Tweet", new { id = tweetId });
     }
-    
+
     [Route("/tweetsil/{id}")]
     public IActionResult TweetSil(int id, string nickname)
     {
-        
         using var connection = new SqlConnection(connectionString);
-        
+
         var sql = "DELETE FROM tweets WHERE id = @Id";
         var rowsAffected = connection.Execute(sql, new { Id = id });
 
         return RedirectToAction("Profile", new { nickname });
     }
+
+    [HttpGet]
+    [Route("/sifre-unuttum")]
+    public IActionResult SifreUnuttum()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [Route("/SifreUnuttum")]
+    public IActionResult SifreUnuttum(string email)
+    {
+        using var connection = new SqlConnection(connectionString);
+
+        var user = connection.QuerySingleOrDefault<Register>(
+            "SELECT * FROM users WHERE Mail = @Mail", new { Mail = email });
+
+        if (user == null)
+        {
+            ViewBag.Message = "Bu e-posta adresiyle kayıtlı bir kullanıcı bulunamadı.";
+            return View("Message");
+        }
+
+        return RedirectToAction("PwResetLink", new { userId = user.Id });
+    }
+    
+    public IActionResult PwResetLink(int userId)
+    {
+        using var connection = new SqlConnection(connectionString);
+        string userEmail = connection.QueryFirstOrDefault<string>("SELECT Mail FROM users WHERE Id = @UserId", new { UserId = userId });
+        
+        var token = TokenUret(userId);
+
+        var resetLink = Url.Action("ResetPassword", "Admin", new { token }, Request.Scheme);
+
+        using var reader = new StreamReader("wwwroot/mailTemp/pwreset.html");
+        var template = reader.ReadToEnd();
+        var mailBody = template.Replace("{{Resetlink}}", resetLink);
+        Debug.WriteLine("Gönderilen Bağlantı: " + resetLink);
+        
+        var client = new SmtpClient("smtp.eu.mailgun.org", 587)
+        {
+            Credentials = new NetworkCredential(),
+            EnableSsl = true
+        };
+
+        var mailMessage = new MailMessage
+        {
+            From = new MailAddress("morapp@bildirim.veyselguler.com", "MorApp"),
+            Subject = "Şifre Sıfırlama Talebi",
+            Body = mailBody,
+            IsBodyHtml = true
+        };
+
+        mailMessage.To.Add(new MailAddress(userEmail));
+
+        client.Send(mailMessage);
+
+        ViewBag.Message = "Şifre sıfırlama mail olarak iletişmiştir.";
+        return View("Message");
+    }
+    
+    [HttpGet]
+    public IActionResult Search()
+    {
+        return View(new AramaModel());
+    }
+
+    [HttpPost]
+    public IActionResult Search(AramaModel model)
+    {
+        if (string.IsNullOrWhiteSpace(model.SearchTerm))
+        {
+            ModelState.AddModelError("", "Lütfen bir arama terimi girin.");
+            return View(model);
+        }
+
+        using var connection = new SqlConnection(connectionString);
+        var sql = "SELECT Id, Username, Nickname FROM users WHERE Username LIKE @SearchTerm OR Nickname LIKE @SearchTerm";
+
+        var searchTerm = "%" + model.SearchTerm + "%";
+        model.Sonuc = connection.Query<Arama>(sql, new { SearchTerm = searchTerm }).ToList();
+
+        return View(model);
+    }
+
 }
